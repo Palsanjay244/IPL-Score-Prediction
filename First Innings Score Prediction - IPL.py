@@ -1,4 +1,6 @@
 # Importing essential libraries
+from sklearn.model_selection import GridSearchCV
+from sklearn.linear_model import Ridge
 import pandas as pd
 import pickle
 
@@ -49,10 +51,23 @@ X_test.drop(labels='date', axis=True, inplace=True)
 
 # --- Model Building ---
 # Linear Regression Model
-from sklearn.linear_model import LinearRegression
-regressor = LinearRegression()
-regressor.fit(X_train,y_train)
+#from sklearn.linear_model import LinearRegression
+#regressor = LinearRegression()
+#regressor.fit(X_train,y_train)
 
 # Creating a pickle file for the classifier
-filename = 'first-innings-score-lr-model.pkl'
+#filename = 'first-innings-score-lr-model.pkl'
+#pickle.dump(regressor, open(filename, 'wb'))
+
+ridge = Ridge()
+parameters = {'alpha': [1e-15, 1e-10, 1e-8,
+                        1e-3, 1e-2, 1, 5, 10, 20, 30, 35, 40]}
+ridge_regressor = GridSearchCV(
+    ridge, parameters, scoring='neg_mean_squared_error', cv=5)
+ridge_regressor.fit(X_train, y_train)
+regressor = ridge_regressor.predict(X_test)
+
+filename = 'first-innings-score-Ridge-model.pkl'
 pickle.dump(regressor, open(filename, 'wb'))
+
+
